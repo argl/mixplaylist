@@ -46,7 +46,11 @@ fn parse_project(path: &str) -> Result<Project, Box<dyn std::error::Error>> {
                         .attributes()
                         .flatten()
                         .find(|a| a.key.local_name().as_ref() == b"Time")
-                        .and_then(|a| std::str::from_utf8(&a.value).ok().and_then(|v| v.parse().ok()));
+                        .and_then(|a| {
+                            std::str::from_utf8(&a.value)
+                                .ok()
+                                .and_then(|v| v.parse().ok())
+                        });
                     if let Some(t) = time {
                         clip_time = Some(t);
                         clip_depth = Some(depth);
@@ -60,34 +64,43 @@ fn parse_project(path: &str) -> Result<Project, Box<dyn std::error::Error>> {
                 let tag = e.local_name();
                 let tag = tag.as_ref();
 
-                if tag == b"Manual" && in_tempo
+                if tag == b"Manual"
+                    && in_tempo
                     && let Some(td) = tempo_depth
-                        && depth == td + 1
-                            && let Some(bpm) = e
-                                .attributes()
-                                .flatten()
-                                .find(|a| a.key.local_name().as_ref() == b"Value")
-                                .and_then(|a| std::str::from_utf8(&a.value).ok().and_then(|v| v.parse().ok()))
-                            {
-                                tempo_bpm = bpm;
-                                in_tempo = false;
-                                tempo_depth = None;
-                            }
+                    && depth == td + 1
+                    && let Some(bpm) = e
+                        .attributes()
+                        .flatten()
+                        .find(|a| a.key.local_name().as_ref() == b"Value")
+                        .and_then(|a| {
+                            std::str::from_utf8(&a.value)
+                                .ok()
+                                .and_then(|v| v.parse().ok())
+                        })
+                {
+                    tempo_bpm = bpm;
+                    in_tempo = false;
+                    tempo_depth = None;
+                }
 
                 if tag == b"Name"
                     && let (Some(t), Some(cd)) = (clip_time, clip_depth)
-                        && depth == cd + 1 {
-                            let name = e
-                                .attributes()
-                                .flatten()
-                                .find(|a| a.key.local_name().as_ref() == b"Value")
-                                .map(|a| String::from_utf8_lossy(&a.value).into_owned());
-                            if let Some(n) = name {
-                                clips.push(Clip { name: n, time_beats: t });
-                            }
-                            clip_time = None;
-                            clip_depth = None;
-                        }
+                    && depth == cd + 1
+                {
+                    let name = e
+                        .attributes()
+                        .flatten()
+                        .find(|a| a.key.local_name().as_ref() == b"Value")
+                        .map(|a| String::from_utf8_lossy(&a.value).into_owned());
+                    if let Some(n) = name {
+                        clips.push(Clip {
+                            name: n,
+                            time_beats: t,
+                        });
+                    }
+                    clip_time = None;
+                    clip_depth = None;
+                }
             }
 
             Event::End(_) => {
@@ -129,7 +142,11 @@ fn main() {
     match parse_project(&args[1]) {
         Ok(project) => {
             for clip in &project.clips {
-                println!("[{}] {}", beats_to_mmss(clip.time_beats, project.tempo_bpm), clip.name);
+                println!(
+                    "[{}] {}",
+                    beats_to_mmss(clip.time_beats, project.tempo_bpm),
+                    clip.name
+                );
             }
         }
         Err(e) => {
