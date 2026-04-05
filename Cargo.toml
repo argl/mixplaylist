@@ -1,0 +1,8 @@
+[package]
+name = "mixplaylist"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+flate2 = "1"
+quick-xml = "0.37"
