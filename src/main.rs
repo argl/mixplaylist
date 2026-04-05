@@ -60,10 +60,10 @@ fn parse_project(path: &str) -> Result<Project, Box<dyn std::error::Error>> {
                 let tag = e.local_name();
                 let tag = tag.as_ref();
 
-                if tag == b"Manual" && in_tempo {
-                    if let Some(td) = tempo_depth {
-                        if depth == td + 1 {
-                            if let Some(bpm) = e
+                if tag == b"Manual" && in_tempo
+                    && let Some(td) = tempo_depth
+                        && depth == td + 1
+                            && let Some(bpm) = e
                                 .attributes()
                                 .flatten()
                                 .find(|a| a.key.local_name().as_ref() == b"Value")
@@ -73,13 +73,10 @@ fn parse_project(path: &str) -> Result<Project, Box<dyn std::error::Error>> {
                                 in_tempo = false;
                                 tempo_depth = None;
                             }
-                        }
-                    }
-                }
 
-                if tag == b"Name" {
-                    if let (Some(t), Some(cd)) = (clip_time, clip_depth) {
-                        if depth == cd + 1 {
+                if tag == b"Name"
+                    && let (Some(t), Some(cd)) = (clip_time, clip_depth)
+                        && depth == cd + 1 {
                             let name = e
                                 .attributes()
                                 .flatten()
@@ -91,8 +88,6 @@ fn parse_project(path: &str) -> Result<Project, Box<dyn std::error::Error>> {
                             clip_time = None;
                             clip_depth = None;
                         }
-                    }
-                }
             }
 
             Event::End(_) => {
