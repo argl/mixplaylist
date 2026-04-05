@@ -1,25 +1,25 @@
 # mixplaylist
 
-Reads an Ableton Live project file (`.als`) and prints a timestamped playlist of every clip in the arrangement, sorted by start position.
+Reads an Ableton Live project file (`.als`) and prints a timestamped playlist of every clip in the arrangement, sorted by start position. This is a somewhat standardized playlist format, suitable for usage in Mixcloud or other contexts.
 
 ## Usage
 
 ```sh
 cargo run -- <file.als>
+
+# or build it and install it into one of your `PATH`s 
+cargo build -r
+cp target/release/mixplaylist /usr/local/bin
 ```
 
 Output:
 
 ```
-[00:00] Flea - Golden Wingship
-[00:37] clown core - google your own death (live)
-[01:57] Slikback - EO
+[00:00] Some clip name
+[00:37] Some other clip name
+[01:57] Third clip
 ...
 ```
-
-## How it works
-
-Ableton `.als` files are gzip-compressed XML. The tool decompresses the file, reads the project BPM from `<Tempo>`, then collects every `<AudioClip>` and `<MidiClip>` from the arrangement along with their `Time` position (in beats) and `Name`. Beat positions are converted to `MM:SS` using the project tempo.
 
 ## License
 
