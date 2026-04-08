@@ -23,4 +23,4 @@ Output:
 
 ## License
 
-MIT, see LICENSE
+see LICENSE
